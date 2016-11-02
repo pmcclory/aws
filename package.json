@@ -2,5 +2,22 @@
   "dependencies": {
     "aws-sdk": "^2.6.13",
     "bluebird": "^3.4.6"
-  }
+  },
+  "name": "@sparkpost/aws",
+  "description": "Thin wrappers around the aws-sdk libraries we use.",
+  "version": "1.0.0",
+  "main": "index.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "grunt dev-validate"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SparkPost/aws.git"
+  },
+  "author": "",
+  "bugs": {
+    "url": "https://github.com/SparkPost/aws/issues"
+  },
+  "homepage": "https://github.com/SparkPost/aws#readme"
 }
