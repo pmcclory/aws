@@ -3,12 +3,7 @@
 const AWS = require('aws-sdk');
 const cache = require('./lib/cache');
 
-let initialized = false;
-
 module.exports = {
-  isInitialized: () => {
-    return initialized;
-  },
   initialize: (conf) => {
     let awsConf = {}
       , configurationKeys = ['accessKeyId', 'secretAccessKey', 'region', 'httpOptions'];
