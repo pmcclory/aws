@@ -1,7 +1,6 @@
 'use strict';
 
 const AWS = require('aws-sdk');
-const cache = require('./lib/cache');
 
 module.exports = {
   initialize: (conf) => {
@@ -15,7 +14,6 @@ module.exports = {
     });
 
     AWS.config.update(awsConf);
-    cache.set('awsInitialized', true);
   },
   DynamoDB: require('./lib/dynamo')
 };
