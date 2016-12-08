@@ -39,8 +39,7 @@ To set up the lib:
 
 ```javascript
 const aws = require('@sparkpost/aws')
-const config = {}; // document client config, if necessary?
-const ddb = new aws.DynamoDB(config).client
+const ddb = new aws.DynamoDB().client // DynamoDB() constructor takes optional Document Client config object if necessary
 ```
 
 Regular callback usage:
@@ -59,7 +58,7 @@ ddb.get(getParams, (err, result) => {
 })
 ```
 
-The client has also been "promisified" using [Bluebird's `promisifyAll` method](http://bluebirdjs.com/docs/api/promise.promisifyall.html) to attach promise-versions of all available methods, which are then available at `<methodName>Async`.
+The client has been "promisified" using [Bluebird's `promisifyAll` method](http://bluebirdjs.com/docs/api/promise.promisifyall.html) to attach promise-versions of all available methods, which are then available at `<methodName>Async`.
 
 Promise usage:
 
