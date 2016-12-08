@@ -1,7 +1,39 @@
 # aws
 Thin wrappers around the aws-sdk libraries we use.
 
-### DynamoDB
+### Initialization
+
+Wrapper gives a service a simple way to set up the AWS credentials in one place, one time for the whole service. This allows the service to remove this initialization later in favor of ENV_VAR or instance profile auth management, if we are able to move to that later.
+
+For example, in app.js:
+
+```javascript
+'use strict';
+
+const AWS = require('@sparkpost/aws');
+const passwords = require('@sparkpost/msys-passwords');
+const config = require('@sparkpost/msys-config');
+// ... whatever else you need, besides the actual models etc. that use aws
+
+/*
+ * This needs to occur before the resources module tree is required
+ * because the AWS module needs to be globally configured before any
+ * usage / instantiation can occur.
+ */
+if (config.get('aws.enabled') && config.get('aws.enabled') === true) {
+  AWS.initialize({
+    accessKeyId: config.get('aws.accessKeyId'),
+    secretAccessKey: passwords.maybeDecrypt(config.get('aws.secretAccessKey')),
+    region: config.get('aws.region'),
+    proxy: process.env.HTTPS_PROXY
+  });
+}
+
+// the files that use aws are required *after* the setup (note: better auth strategies might avoid this order-dependencies in the future)
+const resources = require('./resources');
+```
+
+### DynamoDB (Document Client)
 
 Get an instance of [the DynamoDB DocumentClient](http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/DynamoDB/DocumentClient.html), stored as `client` on a `DynamoDB` instance. All methods described in the docs are available.
 
@@ -10,10 +42,7 @@ To set up the lib:
 ```javascript
 const aws = require('@sparkpost/aws')
 const config = {
-  region: "us-west-2",
-  accessKeyId: "<aws access key>",
-  secretAccessKey: "<aws secret access key>",
-  account: 1234567890 // aws account id integer
+  // document client config
 }
 const ddb = new aws.DynamoDB(config).client
 ```
