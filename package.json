@@ -1,7 +1,8 @@
 {
   "dependencies": {
     "aws-sdk": "^2.6.13",
-    "bluebird": "^3.4.6"
+    "bluebird": "^3.4.6",
+    "proxy-agent": "^2.0.0"
   },
   "name": "@sparkpost/aws",
   "description": "Thin wrappers around the aws-sdk libraries we use.",
