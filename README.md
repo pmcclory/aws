@@ -11,8 +11,6 @@ For example, in app.js:
 'use strict';
 
 const AWS = require('@sparkpost/aws');
-const passwords = require('@sparkpost/msys-passwords');
-const config = require('@sparkpost/msys-config');
 // ... whatever else you need, besides the actual models etc. that use aws
 
 /*
