@@ -39,9 +39,7 @@ To set up the lib:
 
 ```javascript
 const aws = require('@sparkpost/aws')
-const config = {
-  // document client config
-}
+const config = {}; // document client config, if necessary?
 const ddb = new aws.DynamoDB(config).client
 ```
 
