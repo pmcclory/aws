@@ -3,7 +3,7 @@ Thin wrappers around the aws-sdk libraries we use.
 
 ### Initialization
 
-Wrapper gives a service a simple way to set up the AWS credentials in one place, one time for the whole service. This allows the service to remove this initialization later in favor of ENV_VAR or instance profile auth management, if we are able to move to that later.
+Rather than having to assemble all the necessary connection config in every file that needs aws services, this wrapper provides a simple way to set up the AWS credentials in one place, one time for the whole service. This also allows the service to remove this initialization step later in favor of ENV_VAR or instance profile auth management, if possible.
 
 For example, in app.js:
 
