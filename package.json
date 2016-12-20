@@ -9,9 +9,12 @@
   "description": "Thin wrappers around the aws-sdk libraries we use.",
   "version": "1.0.0",
   "main": "index.js",
-  "devDependencies": {},
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^3.2.0"
+  },
   "scripts": {
-    "test": "grunt dev-validate"
+    "test": "mocha ./test --colors"
   },
   "repository": {
     "type": "git",
