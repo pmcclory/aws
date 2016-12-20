@@ -29,10 +29,6 @@ describe('Dynamo Helpers', function() {
     });
   });
 
-  it('should prepare an update expression from an update hash', function() {
-    expect(helpers.prepareUpdateExpression(testHash)).to.equal('SET #plan = :plan AND #status = :status');
-  });
-
   it('should prepare an update expression from an array of keys', function() {
     const keysList = Object.keys(testHash);
     expect(helpers.prepareUpdateExpression(keysList)).to.equal('SET #plan = :plan AND #status = :status');
