@@ -26,11 +26,11 @@ describe.only('SQS Utilities', function () {
     };
 
     sqsMock = {
-      sendMessageAsync: sinon.stub().resolves(result),
-      changeMessageVisibilityAsync: sinon.stub().resolves(result),
-      purgeQueueAsync: sinon.stub().resolves(result),
-      deleteMessageBatchAsync: sinon.stub().resolves(result),
-      receiveMessageAsync: sinon.stub().resolves(result)
+      sendMessage: sinon.stub().yields(null, result),
+      changeMessageVisibility: sinon.stub().yields(null, result),
+      purgeQueue: sinon.stub().yields(null, result),
+      deleteMessageBatch: sinon.stub().yields(null, result),
+      receiveMessage: sinon.stub().yields(null, result)
     };
 
     awsMock = {
@@ -60,8 +60,8 @@ describe.only('SQS Utilities', function () {
     return SQS.send({ queueName: 'queue', payload: 'payload', attrs: { foo: 'bar' } })
       .then((res) => {
         expect(res).to.equal(result);
-        expect(sqsMock.sendMessageAsync.callCount).to.equal(1);
-        expect(sqsMock.sendMessageAsync.args[0][0]).to.deep.equal({
+        expect(sqsMock.sendMessage.callCount).to.equal(1);
+        expect(sqsMock.sendMessage.args[0][0]).to.deep.equal({
           MessageBody: 'payload',
           QueueUrl: queueUrl,
           MessageAttributes: { foo: 'bar' }
@@ -74,8 +74,8 @@ describe.only('SQS Utilities', function () {
     return SQS.purge({ queueName: 'queue' })
       .then((res) => {
         expect(res).to.equal(result);
-        expect(sqsMock.purgeQueueAsync.callCount).to.equal(1);
-        expect(sqsMock.purgeQueueAsync.args[0][0]).to.deep.equal({
+        expect(sqsMock.purgeQueue.callCount).to.equal(1);
+        expect(sqsMock.purgeQueue.args[0][0]).to.deep.equal({
           QueueUrl: queueUrl
         });
       });
@@ -85,8 +85,8 @@ describe.only('SQS Utilities', function () {
     return SQS.setVizTimeout({ queueName: 'queue', handle: 'handle', timeout: 'timeout' })
       .then((res) => {
         expect(res).to.equal(result);
-        expect(sqsMock.changeMessageVisibilityAsync.callCount).to.equal(1);
-        expect(sqsMock.changeMessageVisibilityAsync.args[0][0]).to.deep.equal({
+        expect(sqsMock.changeMessageVisibility.callCount).to.equal(1);
+        expect(sqsMock.changeMessageVisibility.args[0][0]).to.deep.equal({
           QueueUrl: queueUrl,
           ReceiptHandle: 'handle',
           VisibilityTimeout: 'timeout'
@@ -99,8 +99,8 @@ describe.only('SQS Utilities', function () {
     return SQS.retrieve({ queueName: 'queue' })
       .then((res) => {
         expect(res).to.equal('result');
-        expect(sqsMock.receiveMessageAsync.callCount).to.equal(1);
-        expect(sqsMock.receiveMessageAsync.args[0][0]).to.deep.equal({
+        expect(sqsMock.receiveMessage.callCount).to.equal(1);
+        expect(sqsMock.receiveMessage.args[0][0]).to.deep.equal({
           MaxNumberOfMessages: 10,
           QueueUrl: queueUrl,
           WaitTimeSeconds: 20,
@@ -115,8 +115,8 @@ describe.only('SQS Utilities', function () {
     return SQS.retrieve({ queueName: 'queue', messageAttributeNames: ['sp_batch_id'] })
       .then((res) => {
         expect(res).to.equal('result');
-        expect(sqsMock.receiveMessageAsync.callCount).to.equal(1);
-        expect(sqsMock.receiveMessageAsync.args[0][0]).to.deep.equal({
+        expect(sqsMock.receiveMessage.callCount).to.equal(1);
+        expect(sqsMock.receiveMessage.args[0][0]).to.deep.equal({
           MaxNumberOfMessages: 10,
           QueueUrl: queueUrl,
           WaitTimeSeconds: 20,
@@ -131,8 +131,8 @@ describe.only('SQS Utilities', function () {
     return SQS.retrieve({ queueName: 'queue', max: 1 })
       .then((res) => {
         expect(res).to.equal('result');
-        expect(sqsMock.receiveMessageAsync.callCount).to.equal(1);
-        expect(sqsMock.receiveMessageAsync.args[0][0]).to.deep.equal({
+        expect(sqsMock.receiveMessage.callCount).to.equal(1);
+        expect(sqsMock.receiveMessage.args[0][0]).to.deep.equal({
           MaxNumberOfMessages: 1,
           QueueUrl: queueUrl,
           WaitTimeSeconds: 20,
@@ -149,8 +149,8 @@ describe.only('SQS Utilities', function () {
     return SQS.remove({ queueName: 'queue', entries })
       .then((res) => {
         expect(res).to.equal('result');
-        expect(sqsMock.deleteMessageBatchAsync.callCount).to.equal(1);
-        expect(sqsMock.deleteMessageBatchAsync.args[0][0]).to.deep.equal({
+        expect(sqsMock.deleteMessageBatch.callCount).to.equal(1);
+        expect(sqsMock.deleteMessageBatch.args[0][0]).to.deep.equal({
           Entries: [{ Id: 1, foo: 'bar' }, { Id: 2, foo: 'bat' }],
           QueueUrl: queueUrl
         });
