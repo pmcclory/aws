@@ -8,7 +8,7 @@ const sinon = require('sinon');
 chai.use(require('chai-sinon'));
 require('sinon-as-promised')(require('bluebird'));
 
-describe.only('SQS Utilities', function () {
+describe('SQS Utilities', function() {
   let SQS
     , sqsMock
     , result
@@ -16,7 +16,7 @@ describe.only('SQS Utilities', function () {
     , awsMock
     , queueUrl;
 
-  beforeEach(function () {
+  beforeEach(function() {
     result = 'result';
 
     testConfig = {
@@ -46,16 +46,16 @@ describe.only('SQS Utilities', function () {
     // url for a queue named "queue"
     queueUrl = 'https://sqs.Winterfel.amazonaws.com/Stark/etl_queue_ending';
 
-    SQS = proxyquire('../../lib/sqs', {
+    SQS = proxyquire('../../../lib/sqs', {
       'aws-sdk': awsMock
     })(testConfig);
   });
 
-  it('should return a queue name', function () {
+  it('should return a queue name', function() {
     expect(SQS.getQueueURL('webhooks')).to.equal('https://sqs.Winterfel.amazonaws.com/Stark/etl_webhooks_ending');
   });
 
-  it('should send a message', function () {
+  it('should send a message', function() {
 
     return SQS.send({ queueName: 'queue', payload: 'payload', attrs: { foo: 'bar' } })
       .then((res) => {
@@ -69,7 +69,7 @@ describe.only('SQS Utilities', function () {
       });
   });
 
-  it('should purge a queue', function () {
+  it('should purge a queue', function() {
 
     return SQS.purge({ queueName: 'queue' })
       .then((res) => {
@@ -81,7 +81,7 @@ describe.only('SQS Utilities', function () {
       });
   });
 
-  it('should change a message visibility timeout on an object', function () {
+  it('should change a message visibility timeout on an object', function() {
     return SQS.setVizTimeout({ queueName: 'queue', handle: 'handle', timeout: 'timeout' })
       .then((res) => {
         expect(res).to.equal(result);
@@ -94,7 +94,7 @@ describe.only('SQS Utilities', function () {
       });
   });
 
-  it('should retrieve messages', function () {
+  it('should retrieve messages', function() {
 
     return SQS.retrieve({ queueName: 'queue' })
       .then((res) => {
@@ -110,7 +110,7 @@ describe.only('SQS Utilities', function () {
       });
   });
 
-  it('should retrieve messages with attributes', function () {
+  it('should retrieve messages with attributes', function() {
 
     return SQS.retrieve({ queueName: 'queue', messageAttributeNames: ['sp_batch_id'] })
       .then((res) => {
@@ -126,7 +126,7 @@ describe.only('SQS Utilities', function () {
       });
   });
 
-  it('should retrieve 1 message', function () {
+  it('should retrieve 1 message', function() {
 
     return SQS.retrieve({ queueName: 'queue', max: 1 })
       .then((res) => {
@@ -142,7 +142,7 @@ describe.only('SQS Utilities', function () {
       });
   });
 
-  it('should remove messages', function () {
+  it('should remove messages', function() {
 
     const entries = [{ Id: 1, foo: 'bar' }, { Id: 1, foo: 'baz' }, { Id: 2, foo: 'bat' }];
 

@@ -1,20 +1,20 @@
 'use strict';
 
 const AWS = require('aws-sdk');
-const proxy = require('proxy-agent')
+const proxy = require('proxy-agent');
 
 module.exports = {
   initialize: (conf) => {
-    let awsConf = {}
-      , configurationKeys = [
-        'accessKeyId',
-        'secretAccessKey',
-        'region',
-        'proxy',
-        'maxRetries',
-        'retryDelayOptions',
-        'visibilityTimeout'
-      ];
+    const awsConf = {};
+    const configurationKeys = [
+      'accessKeyId',
+      'secretAccessKey',
+      'region',
+      'proxy',
+      'maxRetries',
+      'retryDelayOptions',
+      'visibilityTimeout'
+    ];
 
     configurationKeys.forEach((key) => {
       if (key === 'proxy' && conf.proxy) {

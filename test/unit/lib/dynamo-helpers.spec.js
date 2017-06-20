@@ -2,7 +2,7 @@
 
 const chai = require('chai');
 const expect = chai.expect;
-const helpers = require('../../lib/dynamo-helpers');
+const helpers = require('../../../lib/dynamo-helpers');
 
 describe('Dynamo Helpers', function() {
   let testHash;
