@@ -6,7 +6,15 @@ const proxy = require('proxy-agent')
 module.exports = {
   initialize: (conf) => {
     let awsConf = {}
-      , configurationKeys = ['accessKeyId', 'secretAccessKey', 'region', 'proxy', 'maxRetries', 'retryDelayOptions'];
+      , configurationKeys = [
+        'accessKeyId',
+        'secretAccessKey',
+        'region',
+        'proxy',
+        'maxRetries',
+        'retryDelayOptions',
+        'visibilityTimeout'
+      ];
 
     configurationKeys.forEach((key) => {
       if (key === 'proxy' && conf.proxy) {
@@ -18,5 +26,6 @@ module.exports = {
 
     AWS.config.update(awsConf);
   },
-  DynamoDB: require('./lib/dynamo')
+  DynamoDB: require('./lib/dynamo'),
+  SQS: require('./lib/sqs')
 };
