@@ -22,9 +22,9 @@
   "scripts": {
     "lint": "eslint --fix index.js lib/**/*.js test/unit/**/*.js",
     "coverage-report": "nyc report",
-    "pretest": "npm run lint",
-    "test": "nyc --reporter=lcov --report-dir=test/reports/unit mocha test/unit/ --reporter xunit-file",
-    "dev-validate": "npm run lint && nyc --reporter=lcov --report-dir=test/reports/unit mocha test/unit/ && npm run coverage-report"
+    "test-base": "nyc --reporter=lcov --report-dir=test/reports/unit mocha test/unit/",
+    "test": "npm run lint && npm run test-base -- --reporter xunit-file && npm run coverage-report",
+    "dev-validate": "npm run lint && npm run test-base && npm run coverage-report"
   },
   "repository": {
     "type": "git",
