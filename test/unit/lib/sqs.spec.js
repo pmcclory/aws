@@ -9,7 +9,8 @@ chai.use(require('chai-sinon'));
 require('sinon-as-promised')(require('bluebird'));
 
 describe('SQS Utilities', function() {
-  let SQS
+  let sqs
+    , sqsInstance
     , sqsMock
     , result
     , testConfig
@@ -35,8 +36,7 @@ describe('SQS Utilities', function() {
 
     awsMock = {
       config: {
-        region: 'Winterfel',
-        visibilityTimeout: 42
+        region: 'Winterfel'
       },
       SQS: class {
         constructor() { return sqsMock; }
@@ -46,18 +46,29 @@ describe('SQS Utilities', function() {
     // url for a queue named "queue"
     queueUrl = 'https://sqs.Winterfel.amazonaws.com/Stark/etl_queue_ending';
 
-    SQS = proxyquire('../../../lib/sqs', {
+    sqs = proxyquire('../../../lib/sqs', {
       'aws-sdk': awsMock
-    })(testConfig);
+    });
+
+    sqsInstance = sqs(testConfig);
   });
 
   it('should return a queue name', function() {
-    expect(SQS.getQueueURL('webhooks')).to.equal('https://sqs.Winterfel.amazonaws.com/Stark/etl_webhooks_ending');
+    expect(sqsInstance.getQueueURL('webhooks')).to.equal('https://sqs.Winterfel.amazonaws.com/Stark/etl_webhooks_ending');
   });
+
+  it('should default prefix and suffix to the empty string name', function() {
+    delete testConfig.queuePrefix;
+    delete testConfig.queueSuffix;
+    sqsInstance = sqs(testConfig);
+
+    expect(sqsInstance.getQueueURL('webhooks')).to.equal('https://sqs.Winterfel.amazonaws.com/Stark/webhooks');
+  });
+
 
   it('should send a message', function() {
 
-    return SQS.send({ queueName: 'queue', payload: 'payload', attrs: { foo: 'bar' } })
+    return sqsInstance.send({ queueName: 'queue', payload: 'payload', attrs: { foo: 'bar' } })
       .then((res) => {
         expect(res).to.equal(result);
         expect(sqsMock.sendMessage.callCount).to.equal(1);
@@ -71,7 +82,7 @@ describe('SQS Utilities', function() {
 
   it('should purge a queue', function() {
 
-    return SQS.purge({ queueName: 'queue' })
+    return sqsInstance.purge({ queueName: 'queue' })
       .then((res) => {
         expect(res).to.equal(result);
         expect(sqsMock.purgeQueue.callCount).to.equal(1);
@@ -82,7 +93,7 @@ describe('SQS Utilities', function() {
   });
 
   it('should change a message visibility timeout on an object', function() {
-    return SQS.setVizTimeout({ queueName: 'queue', handle: 'handle', timeout: 'timeout' })
+    return sqsInstance.setVizTimeout({ queueName: 'queue', handle: 'handle', timeout: 'timeout' })
       .then((res) => {
         expect(res).to.equal(result);
         expect(sqsMock.changeMessageVisibility.callCount).to.equal(1);
@@ -96,7 +107,7 @@ describe('SQS Utilities', function() {
 
   it('should retrieve messages', function() {
 
-    return SQS.retrieve({ queueName: 'queue' })
+    return sqsInstance.retrieve({ queueName: 'queue' })
       .then((res) => {
         expect(res).to.equal('result');
         expect(sqsMock.receiveMessage.callCount).to.equal(1);
@@ -104,49 +115,103 @@ describe('SQS Utilities', function() {
           MaxNumberOfMessages: 10,
           QueueUrl: queueUrl,
           WaitTimeSeconds: 20,
-          VisibilityTimeout: 42,
+          VisibilityTimeout: 300,
           MessageAttributeNames: []
         });
       });
   });
 
-  it('should retrieve messages with attributes', function() {
+  describe('retrieve', function() {
 
-    return SQS.retrieve({ queueName: 'queue', messageAttributeNames: ['sp_batch_id'] })
-      .then((res) => {
-        expect(res).to.equal('result');
-        expect(sqsMock.receiveMessage.callCount).to.equal(1);
-        expect(sqsMock.receiveMessage.args[0][0]).to.deep.equal({
-          MaxNumberOfMessages: 10,
-          QueueUrl: queueUrl,
-          WaitTimeSeconds: 20,
-          VisibilityTimeout: 42,
-          MessageAttributeNames: ['sp_batch_id']
+    it('should retrieve messages with defaults', function() {
+      return sqsInstance.retrieve({ queueName: 'queue' })
+        .then((res) => {
+          expect(res).to.equal('result');
+          expect(sqsMock.receiveMessage.callCount).to.equal(1);
+          expect(sqsMock.receiveMessage.args[0][0]).to.deep.equal({
+            MaxNumberOfMessages: 10,
+            QueueUrl: queueUrl,
+            WaitTimeSeconds: 20,
+            VisibilityTimeout: 300, // default timeout
+            MessageAttributeNames: []
+          });
         });
-      });
+    });
+
+    it('should retrieve messages with defaultVisibilityTimeout', function() {
+      testConfig.defaultVisibilityTimeout = 42;
+      sqsInstance = sqs(testConfig);
+
+      return sqsInstance.retrieve({ queueName: 'queue' })
+        .then((res) => {
+          expect(res).to.equal('result');
+          expect(sqsMock.receiveMessage.callCount).to.equal(1);
+          expect(sqsMock.receiveMessage.args[0][0]).to.deep.equal({
+            MaxNumberOfMessages: 10,
+            QueueUrl: queueUrl,
+            WaitTimeSeconds: 20,
+            VisibilityTimeout: 42,
+            MessageAttributeNames: []
+          });
+        });
+    });
+
+    it('should retrieve messages with defaultVisibilityTimeout override', function() {
+
+      return sqsInstance.retrieve({ queueName: 'queue', visibilityTimeout: 42 })
+        .then((res) => {
+          expect(res).to.equal('result');
+          expect(sqsMock.receiveMessage.callCount).to.equal(1);
+          expect(sqsMock.receiveMessage.args[0][0]).to.deep.equal({
+            MaxNumberOfMessages: 10,
+            QueueUrl: queueUrl,
+            WaitTimeSeconds: 20,
+            VisibilityTimeout: 42,
+            MessageAttributeNames: []
+          });
+        });
+    });
+
+    it('should retrieve messages with attributes', function() {
+
+      return sqsInstance.retrieve({ queueName: 'queue', messageAttributeNames: ['sp_batch_id'] })
+        .then((res) => {
+          expect(res).to.equal('result');
+          expect(sqsMock.receiveMessage.callCount).to.equal(1);
+          expect(sqsMock.receiveMessage.args[0][0]).to.deep.equal({
+            MaxNumberOfMessages: 10,
+            QueueUrl: queueUrl,
+            WaitTimeSeconds: 20,
+            VisibilityTimeout: 300, // default timeout
+            MessageAttributeNames: ['sp_batch_id']
+          });
+        });
+    });
+
+    it('should retrieve 1 message', function() {
+
+      return sqsInstance.retrieve({ queueName: 'queue', max: 1 })
+        .then((res) => {
+          expect(res).to.equal('result');
+          expect(sqsMock.receiveMessage.callCount).to.equal(1);
+          expect(sqsMock.receiveMessage.args[0][0]).to.deep.equal({
+            MaxNumberOfMessages: 1,
+            QueueUrl: queueUrl,
+            WaitTimeSeconds: 20,
+            VisibilityTimeout: 300, // default timeout
+            MessageAttributeNames: []
+          });
+        });
+    });
+
   });
 
-  it('should retrieve 1 message', function() {
-
-    return SQS.retrieve({ queueName: 'queue', max: 1 })
-      .then((res) => {
-        expect(res).to.equal('result');
-        expect(sqsMock.receiveMessage.callCount).to.equal(1);
-        expect(sqsMock.receiveMessage.args[0][0]).to.deep.equal({
-          MaxNumberOfMessages: 1,
-          QueueUrl: queueUrl,
-          WaitTimeSeconds: 20,
-          VisibilityTimeout: 42,
-          MessageAttributeNames: []
-        });
-      });
-  });
 
   it('should remove messages', function() {
 
     const entries = [{ Id: 1, foo: 'bar' }, { Id: 1, foo: 'baz' }, { Id: 2, foo: 'bat' }];
 
-    return SQS.remove({ queueName: 'queue', entries })
+    return sqsInstance.remove({ queueName: 'queue', entries })
       .then((res) => {
         expect(res).to.equal('result');
         expect(sqsMock.deleteMessageBatch.callCount).to.equal(1);

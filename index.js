@@ -12,8 +12,7 @@ module.exports = {
       'region',
       'proxy',
       'maxRetries',
-      'retryDelayOptions',
-      'visibilityTimeout'
+      'retryDelayOptions'
     ];
 
     configurationKeys.forEach((key) => {
