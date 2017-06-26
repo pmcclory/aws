@@ -6,6 +6,7 @@ const proxyquire = require('proxyquire').noCallThru();
 const sinon = require('sinon');
 
 chai.use(require('chai-sinon'));
+chai.use(require('chai-as-promised'));
 require('sinon-as-promised')(require('bluebird'));
 
 describe('SQS Utilities', function() {
@@ -65,19 +66,48 @@ describe('SQS Utilities', function() {
     expect(sqsInstance.getQueueURL('webhooks')).to.equal('https://sqs.Winterfel.amazonaws.com/Stark/webhooks');
   });
 
+  describe('send', function() {
+    afterEach(function() {
+      if (JSON.stringify.restore) {
+        JSON.stringify.restore();
+      }
+    });
 
-  it('should send a message', function() {
+    it('should send a message', function() {
 
-    return sqsInstance.send({ queueName: 'queue', payload: 'payload', attrs: { foo: 'bar' } })
-      .then((res) => {
-        expect(res).to.equal(result);
-        expect(sqsMock.sendMessage.callCount).to.equal(1);
-        expect(sqsMock.sendMessage.args[0][0]).to.deep.equal({
-          MessageBody: 'payload',
-          QueueUrl: queueUrl,
-          MessageAttributes: { foo: 'bar' }
+      return sqsInstance.send({ queueName: 'queue', payload: 'payload', attrs: { foo: 'bar' } })
+        .then((res) => {
+          expect(res).to.equal(result);
+          expect(sqsMock.sendMessage.callCount).to.equal(1);
+          expect(sqsMock.sendMessage.args[0][0]).to.deep.equal({
+            MessageBody: 'payload',
+            QueueUrl: queueUrl,
+            MessageAttributes: { foo: 'bar' }
+          });
         });
-      });
+    });
+
+    it('should stringify payload', function() {
+      return sqsInstance.send({ queueName: 'queue', payload: { pay: 'load' }, attrs: { foo: 'bar' } })
+        .then((res) => {
+          expect(res).to.equal(result);
+          expect(sqsMock.sendMessage.callCount).to.equal(1);
+          expect(sqsMock.sendMessage.args[0][0]).to.deep.equal({
+            MessageBody: '{"pay":"load"}',
+            QueueUrl: queueUrl,
+            MessageAttributes: { foo: 'bar' }
+          });
+        });
+
+    });
+
+    it('should reject if there is an error parsing the payload', function() {
+      const error = new Error('OH-NOS!');
+      sinon.stub(JSON, 'stringify');
+      JSON.stringify.throws(error);
+
+      return expect(sqsInstance.send({ queueName: 'queue', payload: { pay: 'load' }, attrs: { foo: 'bar' } })).to.be.rejectedWith(error);
+    });
   });
 
   it('should purge a queue', function() {
