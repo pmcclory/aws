@@ -9,7 +9,7 @@ chai.use(require('chai-sinon'));
 chai.use(require('chai-as-promised'));
 require('sinon-as-promised')(require('bluebird'));
 
-describe('SNS Utilities', function () {
+describe('SNS Utilities', function() {
   let sns
     , snsInstance
     , snsMock
@@ -18,7 +18,7 @@ describe('SNS Utilities', function () {
     , awsMock
     , arn;
 
-  beforeEach(function () {
+  beforeEach(function() {
     result = 'result';
 
     testConfig = {
@@ -49,14 +49,14 @@ describe('SNS Utilities', function () {
     snsInstance = sns(testConfig);
   });
 
-  describe('publish', function () {
+  describe('publish', function() {
     let message;
 
-    beforeEach(function () {
+    beforeEach(function() {
       message = 'message';
     });
 
-    it('should publish a message', function () {
+    it('should publish a message', function() {
       return snsInstance.publish({ message, topicName: 'topic' })
         .then(() => {
           expect(snsMock.publish).to.have.been.calledWith({
@@ -67,7 +67,7 @@ describe('SNS Utilities', function () {
         });
     });
 
-    it('should use a default subject', function () {
+    it('should use a default subject', function() {
       testConfig.defaultSubject = 'defaultSubject';
       snsInstance = sns(testConfig);
 
@@ -81,7 +81,7 @@ describe('SNS Utilities', function () {
         });
     });
 
-    it('should set a subject if passed', function () {
+    it('should set a subject if passed', function() {
       snsInstance = sns(testConfig);
 
       return snsInstance.publish({ message, topicName: 'topic', subject: 'Arya' })
@@ -94,7 +94,21 @@ describe('SNS Utilities', function () {
         });
     });
 
-    it('should stringify non-string messages', function () {
+    it('should default the arnSuffix to the emptyString', function() {
+      delete testConfig.arnSuffix;
+      snsInstance = sns(testConfig);
+
+      return snsInstance.publish({ message, topicName: 'topic', subject: 'Arya' })
+        .then(() => {
+          expect(snsMock.publish).to.have.been.calledWith({
+            Message: message,
+            Subject: 'Arya',
+            TopicArn: 'arn:aws:sns:Winterfel:Stark:sns-topic'
+          });
+        });
+    });
+
+    it('should stringify non-string messages', function() {
       const message = { jon: 'snow' };
 
       return snsInstance.publish({ message, topicName: 'topic', subject: 'Arya' })
@@ -107,7 +121,7 @@ describe('SNS Utilities', function () {
         });
     });
 
-    it('should reject if the push fails', function () {
+    it('should reject if the push fails', function() {
       const error = new Error('YOU KNOW NOTHING');
 
       snsMock.publish.yields(error);
