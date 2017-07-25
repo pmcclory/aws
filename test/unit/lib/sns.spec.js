@@ -56,6 +56,12 @@ describe('SNS Utilities', function() {
       message = 'message';
     });
 
+    afterEach(function() {
+      if (JSON.stringify.restore) {
+        JSON.stringify.restore();
+      }
+    });
+
     it('should publish a message', function() {
       return snsInstance.publish({ message, topicName: 'topic' })
         .then(() => {
@@ -119,6 +125,14 @@ describe('SNS Utilities', function() {
             TopicArn: arn
           });
         });
+    });
+
+    it('should reject if there is an error parsing the payload', function() {
+      const error = new Error('YOU KNOW NOTHING');
+      sinon.stub(JSON, 'stringify');
+      JSON.stringify.throws(error);
+
+      return expect(snsInstance.publish({ message: {}, topicName: 'topic', subject: 'Arya' })).to.be.rejectedWith(error);
     });
 
     it('should reject if the push fails', function() {
