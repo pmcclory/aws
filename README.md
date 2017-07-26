@@ -89,6 +89,8 @@ const sns = require('@sparkpost/aws').SNS({
 
 `account` is required. `arnSuffix` and `defaultSubject` default to the empty string.
 
+The SNS topic ARN will be contructed as `arn:aws:sns:${AWS.config.region}:${account}:sns-${topicName}${arnSuffix}`
+
 #### Publishing a Message
 
 You can publish a messge to an SNS topic using the promisified `publish` method:
