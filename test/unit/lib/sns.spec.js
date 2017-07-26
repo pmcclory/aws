@@ -7,7 +7,6 @@ const sinon = require('sinon');
 
 chai.use(require('chai-sinon'));
 chai.use(require('chai-as-promised'));
-require('sinon-as-promised')(require('bluebird'));
 
 describe('SNS Utilities', function() {
   let sns
