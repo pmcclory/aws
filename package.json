@@ -17,6 +17,7 @@
     "mocha": "^3.4.2",
     "nyc": "^11.0.2",
     "proxyquire": "^1.8.0",
+    "sinon": "^2.4.1",
     "sinon-as-promised": "^4.0.3",
     "xunit-file": "^1.0.0"
   },
