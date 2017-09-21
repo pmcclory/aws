@@ -31,6 +31,16 @@ if (config.get('aws.enabled') && config.get('aws.enabled') === true) {
 const resources = require('./resources');
 ```
 
+### AWS SDK Client
+
+If you want access to the raw `aws-sdk` client you can use the `SDK` property.
+
+```js
+const AWS = require('@sparkpost/aws');
+const marketplaceMeteringService = new AWS.SDK.MarketplaceMetering({ apiVersion: '2016-01-14' });
+marketplaceMeteringService.resolveCustomer({ RegistrationToken: token }, (err, data) => { ... });
+```
+
 ### DynamoDB (Document Client)
 
 Get an instance of [the DynamoDB DocumentClient](http://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/DynamoDB/DocumentClient.html), stored as `client` on a `DynamoDB` instance. All methods described in the docs are available.
