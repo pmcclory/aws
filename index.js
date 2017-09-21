@@ -27,5 +27,6 @@ module.exports = {
   },
   DynamoDB: require('./lib/dynamo'),
   SNS: require('./lib/sns'),
-  SQS: require('./lib/sqs')
+  SQS: require('./lib/sqs'),
+  SDK: AWS
 };
