@@ -22,7 +22,7 @@ describe('Dynamo wrappper', function() {
       },
       DynamoDB: {
         DocumentClient: class {
-          constructor(config) { console.log(stub); stub(config); }
+          constructor(config) { stub(config); }
         }
       }
     };
@@ -35,7 +35,6 @@ describe('Dynamo wrappper', function() {
   describe("Constructor", function() {
     it("should override proxy settings", function() {
       var d = new dynamo({ 'httpOptions': { 'agent': "proxy", 'otherSetting': "this should stay" }});
-      //console.log(stub);
       expect(stub).to.have.been.calledWith({ httpOptions: {agent: undefined, otherSetting: "this should stay"} });
     });
   });
