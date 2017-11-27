@@ -10,7 +10,7 @@ chai.use(require('chai-as-promised'));
 
 describe('Dynamo wrappper', function() {
   let awsMock
-    , dynamo
+    , Dynamo
     , stub;
 
   beforeEach(function() {
@@ -27,15 +27,15 @@ describe('Dynamo wrappper', function() {
       }
     };
 
-    dynamo = proxyquire('../../../lib/dynamo', {
+    Dynamo = proxyquire('../../../lib/dynamo', {
       'aws-sdk': awsMock
     });
   });
 
-  describe("Constructor", function() {
-    it("should override proxy settings", function() {
-      var d = new dynamo({ 'httpOptions': { 'agent': "proxy", 'otherSetting': "this should stay" }});
-      expect(stub).to.have.been.calledWith({ httpOptions: {agent: undefined, otherSetting: "this should stay"} });
+  describe('Constructor', function() {
+    it('should override proxy settings', function() {
+      new Dynamo({ 'httpOptions': { 'agent': 'proxy', 'otherSetting': 'this should stay' }});
+      expect(stub).to.have.been.calledWith({ httpOptions: {agent: undefined, otherSetting: 'this should stay'} });
     });
   });
 });
