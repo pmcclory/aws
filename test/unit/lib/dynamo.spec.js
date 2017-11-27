@@ -34,8 +34,18 @@ describe('Dynamo wrappper', function() {
 
   describe('Constructor', function() {
     it('should override proxy settings', function() {
-      new Dynamo({ 'httpOptions': { 'agent': 'proxy', 'otherSetting': 'this should stay' }});
+      new Dynamo({ httpOptions: { agent: 'proxy', otherSetting: 'this should stay' }});
       expect(stub).to.have.been.calledWith({ httpOptions: {agent: undefined, otherSetting: 'this should stay'} });
+    });
+
+    it('should create an empty config if no config passed', function() {
+      new Dynamo();
+      expect(stub).to.have.been.calledWith({ httpOptions: {agent: undefined} });
+    });
+
+    it('should retain proxy settings if config.bypassProxy is false', function() {
+      new Dynamo({ httpOptions: { agent: 'proxy' }, bypassProxy: false});
+      expect(stub).to.have.been.calledWith({ httpOptions: { agent: 'proxy' }, bypassProxy: false });
     });
   });
 });
