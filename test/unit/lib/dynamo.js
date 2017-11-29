@@ -22,14 +22,14 @@ describe('Dynamo', function() {
       queryAsync: sinon.stub().resolves({ Items: dynamoItems }),
       scanAsync: sinon.stub().resolves({ Items: dynamoItems })
     };
-    
+
     awsMock = {
       config: {
         region: 'Winterfel'
       },
-      DynamoDB: {        
+      DynamoDB: {
         DocumentClient: class {
-          constructor() { return dynamoMock; }          
+          constructor() { return dynamoMock; }
         }
       }
     };
@@ -38,7 +38,7 @@ describe('Dynamo', function() {
       'aws-sdk': awsMock
     });
 
-    dynamoInstance = new Dynamo();
+    dynamoInstance = new Dynamo().client;
   });
 
   describe('queryAll', function() {
@@ -63,8 +63,19 @@ describe('Dynamo', function() {
           expect(dynamoMock.queryAsync).to.have.been.calledTwice;
         });
     });
+
+    it('should handle empty pages', function() {
+      dynamoMock.queryAsync.onCall(0).resolves({ Items: dynamoItems, LastEvaluatedKey: '2' });
+      dynamoMock.queryAsync.onCall(1).resolves({ });
+
+      return dynamoInstance.queryAll({ TableName: 'test' })
+        .then((items) => {
+          expect(items.length).to.equal(dynamoItems.length);
+          expect(dynamoMock.queryAsync).to.have.been.calledTwice;
+        });
+    });
   });
-  
+
   describe('scanAll', function() {
     it('should return all items from a single page scan', function() {
       dynamoMock.scanAsync.onCall(0).resolves({ Items: dynamoItems });
@@ -84,6 +95,17 @@ describe('Dynamo', function() {
       return dynamoInstance.scanAll({ TableName: 'test' })
         .then((items) => {
           expect(items.length).to.equal(dynamoItems.length * 2);
+          expect(dynamoMock.scanAsync).to.have.been.calledTwice;
+        });
+    });
+
+    it('should handle empty pages', function() {
+      dynamoMock.scanAsync.onCall(0).resolves({ Items: dynamoItems, LastEvaluatedKey: '2' });
+      dynamoMock.scanAsync.onCall(1).resolves({ });
+
+      return dynamoInstance.scanAll({ TableName: 'test' })
+        .then((items) => {
+          expect(items.length).to.equal(dynamoItems.length);
           expect(dynamoMock.scanAsync).to.have.been.calledTwice;
         });
     });
