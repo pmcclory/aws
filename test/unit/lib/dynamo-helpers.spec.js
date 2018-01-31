@@ -31,12 +31,12 @@ describe('Dynamo Helpers', function() {
 
   it('should prepare an update expression from an array of keys', function() {
     const keysList = Object.keys(testHash);
-    expect(helpers.prepareUpdateExpression(keysList)).to.equal('SET #plan = :plan AND #status = :status');
+    expect(helpers.prepareUpdateExpression(keysList)).to.equal('SET #plan = :plan, #status = :status');
   });
 
   it('should prepare an update for dynamo', function() {
     expect(helpers.prepareUpdate(testHash)).to.deep.equal({
-      UpdateExpression: 'SET #plan = :plan AND #status = :status',
+      UpdateExpression: 'SET #plan = :plan, #status = :status',
       ExpressionAttributeNames: {
         '#plan': 'plan',
         '#status': 'status'
