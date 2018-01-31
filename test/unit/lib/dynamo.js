@@ -19,8 +19,8 @@ describe('Dynamo', function() {
     dynamoItems = ['one', 'two', 'three', 'four'];
 
     dynamoMock = {
-      queryAsync: sinon.stub().resolves({ Items: dynamoItems }),
-      scanAsync: sinon.stub().resolves({ Items: dynamoItems })
+      query: sinon.stub(),
+      scan: sinon.stub()
     };
 
     awsMock = {
@@ -39,6 +39,8 @@ describe('Dynamo', function() {
     });
 
     dynamoInstance = new Dynamo().client;
+    dynamoInstance.queryAsync = sinon.stub().resolves({ Items: dynamoItems });
+    dynamoInstance.scanAsync = sinon.stub().resolves({ Items: dynamoItems });
   });
 
   describe('queryAll', function() {
