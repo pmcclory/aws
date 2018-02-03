@@ -2,6 +2,7 @@
 
 const AWS = require('aws-sdk');
 const proxy = require('proxy-agent');
+var clientConfig = require('./lib/client-config');
 
 module.exports = {
   initialize: (conf) => {
@@ -17,7 +18,7 @@ module.exports = {
 
     configurationKeys.forEach((key) => {
       if (key === 'proxy' && conf.proxy) {
-        awsConf.httpOptions = { agent: proxy(conf.proxy) };
+        clientConfig.httpOptions = { agent: proxy(conf.proxy) }
       } else if (key in conf) {
         awsConf[key] = conf[key];
       }
