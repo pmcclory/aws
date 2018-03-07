@@ -78,6 +78,54 @@ describe('Dynamo', function() {
     });
   });
 
+  describe('queryAllPager', function() {
+    it('should page when there is a last evaluated key and pass the items to the pager ', function() {
+      dynamoMock.queryAsync.onCall(0).resolves({ Items: [1], LastEvaluatedKey: '2' });
+      dynamoMock.queryAsync.onCall(1).resolves({ Items: [2] });
+      const pagerCallback = sinon.stub().resolves();
+
+      return dynamoInstance.queryAllPager({ TableName: 'test' }, pagerCallback).then(() => {
+        expect(dynamoMock.queryAsync.callCount).to.equal(2);
+        expect(pagerCallback.callCount).to.equal(2);
+        expect(pagerCallback.args[0][0][0]).to.equal(1); // first page
+        expect(pagerCallback.args[1][0][0]).to.equal(2); // second page
+      });
+    });
+
+    it('should not page when there isn\'t a last evaluated key', function() {
+      dynamoMock.queryAsync.onCall(0).resolves({ Items: [1] });
+      const pagerCallback = sinon.stub().resolves();
+
+      return dynamoInstance.queryAllPager({ TableName: 'test' }, pagerCallback).then(() => {
+        expect(dynamoMock.queryAsync.callCount).to.equal(1);
+        expect(pagerCallback.callCount).to.equal(1);
+        expect(pagerCallback.args[0][0][0]).to.equal(1); // first page
+      });
+    });
+
+    it('should handle no items being returned', function() {
+      dynamoMock.queryAsync.onCall(0).resolves({ });
+      const pagerCallback = sinon.stub().resolves();
+
+      return dynamoInstance.queryAllPager({ TableName: 'test' }, pagerCallback).then(() => {
+        expect(dynamoMock.queryAsync.callCount).to.equal(1);
+        expect(pagerCallback.callCount).to.equal(1);
+        expect(pagerCallback.args[0][0].length).to.equal(0); // first page
+      });
+    });
+
+    it('should reject if one of the pager callbacks does', function() {
+      dynamoMock.queryAsync.onCall(0).resolves({ Items: [1] });
+      const pagerCallback = sinon.stub().rejects();
+
+      return expect(dynamoInstance.queryAllPager({ TableName: 'test' }, pagerCallback)).to.be.rejected.then(() => {
+        expect(dynamoMock.queryAsync.callCount).to.equal(1);
+        expect(pagerCallback.callCount).to.equal(1);
+        expect(pagerCallback.args[0][0][0]).to.equal(1); // first page
+      });
+    });
+  });
+
   describe('scanAll', function() {
     it('should return all items from a single page scan', function() {
       dynamoMock.scanAsync.onCall(0).resolves({ Items: dynamoItems });
