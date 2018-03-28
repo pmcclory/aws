@@ -14,8 +14,7 @@ module.exports = {
       'proxy',
       'maxRetries',
       'retryDelayOptions',
-      'apiVersion',
-      'endpoint'
+      'apiVersion'
     ];
 
     configurationKeys.forEach((key) => {
