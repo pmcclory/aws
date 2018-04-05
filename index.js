@@ -13,7 +13,8 @@ module.exports = {
       'region',
       'proxy',
       'maxRetries',
-      'retryDelayOptions'
+      'retryDelayOptions',
+      'apiVersion'
     ];
 
     configurationKeys.forEach((key) => {
@@ -29,5 +30,6 @@ module.exports = {
   DynamoDB: require('./lib/dynamo'),
   SNS: require('./lib/sns'),
   SQS: require('./lib/sqs'),
+  CloudSearch: require('./lib/cloudsearch'),
   SDK: AWS
 };
