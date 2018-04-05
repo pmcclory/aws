@@ -113,6 +113,20 @@ describe('SNS Utilities', function() {
         });
     });
 
+    it('should allow arnPrefix to be overriden', function() {
+      testConfig.arnPrefix = 'sneeze-'; // the proper way to pronounce SNS. this is canon.
+      snsInstance = sns(testConfig);
+
+      return snsInstance.publish({ message, topicName: 'topic', subject: 'Arya' })
+        .then(() => {
+          expect(snsMock.publish).to.have.been.calledWith({
+            Message: message,
+            Subject: 'Arya',
+            TopicArn: 'arn:aws:sns:Winterfel:Stark:sneeze-topic-ending'
+          });
+        });
+    });
+
     it('should stringify non-string messages', function() {
       const message = { jon: 'snow' };
 
