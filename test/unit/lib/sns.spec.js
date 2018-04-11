@@ -66,7 +66,7 @@ describe('SNS Utilities', function() {
         .then(() => {
           expect(snsMock.publish).to.have.been.calledWith({
             Message: message,
-            Subject: '',
+            Subject: undefined,
             TopicArn: arn
           });
         });
