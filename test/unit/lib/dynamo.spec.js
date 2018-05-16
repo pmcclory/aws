@@ -47,7 +47,7 @@ describe('Dynamo wrappper', function() {
   describe('Constructor', function() {
 
     it('should remove agent configuration when not using proxies or keepalive', function() {
-      let config = {
+      const config = {
         bypassProxy: true,
         useKeepalives: false,
         httpOptions: {
@@ -61,7 +61,7 @@ describe('Dynamo wrappper', function() {
     });
 
     it('should create an empty config if no config passed when bypassing proxy and not using keepalives', function() {
-      let config = {
+      const config = {
         bypassProxy: true,
         useKeepalives: false
       };
@@ -70,7 +70,7 @@ describe('Dynamo wrappper', function() {
     });
 
     it('should retain proxy settings if config.bypassProxy is false and not using keepalives', function() {
-      let config = {
+      const config = {
         useKeepalives: false,
         bypassProxy: false,
         httpOptions: {
@@ -82,7 +82,7 @@ describe('Dynamo wrappper', function() {
     });
 
     it('should throw an error if attempting to use keepalives and a proxy', function() {
-      let config = {
+      const config = {
         useKeepalives: true,
         bypassProxy: false
       };
@@ -98,5 +98,5 @@ describe('Dynamo wrappper', function() {
       });
       expect(stub.getCall(0).args[0].httpOptions.agent).to.be.an.instanceof(httpsMock.Agent);
     });
- });
+  });
 });
