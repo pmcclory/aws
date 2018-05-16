@@ -7,7 +7,7 @@
   },
   "name": "@sparkpost/aws",
   "description": "Thin wrappers around the aws-sdk libraries we use.",
-  "version": "1.9.1",
+  "version": "1.10.0",
   "main": "index.js",
   "devDependencies": {
     "chai": "^3.5.0",
