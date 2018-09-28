@@ -12,6 +12,7 @@ describe('SQS Utilities', function() {
   let sqs
     , sqsInstance
     , sqsMock
+    , s3Mock
     , result
     , testConfig
     , awsMock
@@ -40,6 +41,9 @@ describe('SQS Utilities', function() {
       },
       SQS: class {
         constructor() { return sqsMock; }
+      },
+      S3: class {
+        constructor() { return s3Mock; }
       }
     };
 
