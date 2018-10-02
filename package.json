@@ -3,7 +3,8 @@
     "aws-sdk": "^2.73.0",
     "bluebird": "^3.5.0",
     "lodash": "^4.17.4",
-    "proxy-agent": "^2.0.0"
+    "proxy-agent": "^2.0.0",
+    "uuid": "^3.3.2"
   },
   "name": "@sparkpost/aws",
   "description": "Thin wrappers around the aws-sdk libraries we use.",
