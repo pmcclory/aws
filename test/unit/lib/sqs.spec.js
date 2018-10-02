@@ -47,7 +47,7 @@ describe('SQS Utilities', function() {
     s3Result = {
       Body: compress(JSON.stringify({ expect: 'a passing test!' }))
     };
-
+    
     awsMock = {
       config: {
         region: 'Winterfel'
@@ -189,6 +189,7 @@ describe('SQS Utilities', function() {
             QueueUrl: queueUrl,
             MessageAttributes: { foo: 'bar' }
           });
+          expect(s3Mock.upload).to.not.have.been.called;
         });
     });
 
@@ -217,20 +218,44 @@ describe('SQS Utilities', function() {
       Math.random.returns(.5);
 
       return sqsInstance.extendedSend({ queueName: 'queue', s3Bucket: 'test', payload })
-        .then(() => {
+        .then((res) => {
+          expect(res.extended).to.equal(true);
           expect(s3Mock.upload).to.have.been.calledWithMatch({
             Bucket: 'test'
           });
           expect(s3Mock.upload.args[0][0].Key).to.match(/25\/[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}\.json\.gz/i);
+
+          expect(sqsMock.sendMessage).to.have.been.calledWithMatch({
+            MessageBody: 'true',
+            QueueUrl: queueUrl,
+            MessageAttributes: {
+              EXTENDED_S3_BUCKET: {
+                DataType: 'String',
+                StringValue: 'test'
+              },
+              EXTENDED_S3_KEY: {
+                DataType: 'String'
+              }
+            }
+          });
+          expect(sqsMock.sendMessage.args[0][0].MessageAttributes.EXTENDED_S3_KEY.StringValue).to.match(/25\/[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}\.json\.gz/i);
         });
     });
   });
 
   describe('extendedRetrieve', function() {
+    const messageBody = compress(JSON.stringify({ expect: 'a passing test!' }));
+
+    afterEach(function() {
+      if (JSON.parse.restore) {
+        JSON.parse.restore();
+      }
+    });
+
     beforeEach(function() {
       sqsMock.receiveMessageAsync = sinon.stub().resolves({ Messages: [
         {
-          Body: compress(JSON.stringify({ expect: 'a passing test!' }))
+          Body: messageBody
         }
       ]});
     });
@@ -260,6 +285,7 @@ describe('SQS Utilities', function() {
             ],
             VisibilityTimeout: 300 // default timeout
           });
+          expect(s3Mock.getObject).not.to.have.been.called;
         });
     });
 
@@ -267,16 +293,22 @@ describe('SQS Utilities', function() {
       sqsMock.receiveMessageAsync = sinon.stub().resolves({ Messages: [
         {
           MessageAttributes: {
-            EXTENDED_S3_BUCKET: 'test-bucket',
-            EXTENDED_S3_KEY: '/test/key'
+            EXTENDED_S3_BUCKET: {
+              StringValue: 'test-bucket'
+            },
+            EXTENDED_S3_KEY: {
+              StringValue: '/test/key'
+            }
           },
           Body: compress(JSON.stringify(true))
         }
       ]});
 
+      s3Mock.getObjectAsync = sinon.stub().resolves({ Body: compress(JSON.stringify({ test: true }))});
+
       return sqsInstance.extendedRetrieve({ queueName: 'queue' })
         .then((res) => {
-          expect(res[0].body).to.deep.equal({ expect: 'a passing test!' });
+          expect(res[0].body).to.deep.equal({ test: true });
           expect(sqsMock.receiveMessageAsync.callCount).to.equal(1);
           expect(sqsMock.receiveMessageAsync.args[0][0]).to.deep.equal({
             MaxNumberOfMessages: 10,
@@ -287,6 +319,10 @@ describe('SQS Utilities', function() {
               'EXTENDED_S3_KEY'
             ],
             VisibilityTimeout: 300 // default timeout
+          });
+          expect(s3Mock.getObjectAsync).to.have.been.calledWithMatch({
+            Key: '/test/key',
+            Bucket: 'test-bucket'
           });
         });
     });
@@ -321,6 +357,18 @@ describe('SQS Utilities', function() {
           });
         });
     });
+
+    it('should catch errors with json formatting', function() {
+      const err = new Error('OH-NOS!');
+      sinon.stub(JSON, 'parse');
+      JSON.parse.throws(err);
+
+      return sqsInstance.extendedRetrieve({ queueName: 'queue' })
+        .then((res) => {
+          expect(res[0].error).to.equal(err);
+          expect(res[0].message.Body).to.equal(messageBody);
+        });
+    });    
   });
 
   describe('retrieve', function() {
