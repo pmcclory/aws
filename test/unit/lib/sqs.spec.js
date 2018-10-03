@@ -47,7 +47,7 @@ describe('SQS Utilities', function() {
     s3Result = {
       Body: compress(JSON.stringify({ expect: 'a passing test!' }))
     };
-    
+
     awsMock = {
       config: {
         region: 'Winterfel'
@@ -368,7 +368,7 @@ describe('SQS Utilities', function() {
           expect(res[0].error).to.equal(err);
           expect(res[0].message.Body).to.equal(messageBody);
         });
-    });    
+    });
   });
 
   describe('retrieve', function() {
