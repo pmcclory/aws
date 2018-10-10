@@ -70,6 +70,16 @@ describe('SQS Utilities', function() {
     sqsInstance = sqs(testConfig);
   });
 
+  it('should support setting up a keepalive agent through config', function() {
+    testConfig.bypassProxy = true;
+
+    awsMock.SQS = sinon.stub();
+    sqsInstance = sqs(testConfig);
+    expect(awsMock.SQS).to.have.been.calledWithMatch({
+      httpOptions: { agent: sinon.match.any }
+    });
+  });
+
   it('should return a queue name', function() {
     expect(sqsInstance.getQueueURL('webhooks')).to.equal('https://sqs.Winterfel.amazonaws.com/Stark/etl_webhooks_ending');
   });
