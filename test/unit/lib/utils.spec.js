@@ -32,4 +32,20 @@ describe('AWS Library utilities', function() {
       .then(() => badAmazon.callbackExampleAsync())
       .then((ret) => expect(ret).to.be.true);
   });
+
+  it('should support setting up a keepalive agent through config', function() {
+    const awsMock = sinon.stub();
+
+    utils.setHttpAgent({}, true, awsMock);
+    expect(awsMock).to.have.been.calledWithMatch({
+      httpOptions: { agent: sinon.match.any }
+    });
+  });
+
+  it('should default to not setting up http keepalives', function() {
+    const awsMock = sinon.stub();
+
+    utils.setHttpAgent(undefined, undefined, awsMock);
+    expect(awsMock).to.have.been.calledWithMatch({});
+  });
 });
