@@ -9,10 +9,7 @@ chai.use(require('chai-sinon'));
 chai.use(require('chai-as-promised'));
 
 describe('CloudSearch', function() {
-  let awsMock
-    , configMock
-    , CloudSearch
-    , csStub;
+  let awsMock, configMock, CloudSearch, csStub;
 
   beforeEach(function() {
     csStub = sinon.stub();
@@ -41,22 +38,22 @@ describe('CloudSearch', function() {
   });
 
   it('should return the config property set to the passed config', function() {
-    const config = new CloudSearch({foo: 'bar'}).config;
+    const config = new CloudSearch({ foo: 'bar' }).config;
     expect(config).to.have.property('foo');
     expect(config.foo).to.equal('bar');
   });
 
   it('should merge the local config with the global config', function() {
     configMock.foo = 'bar';
-    new CloudSearch({bat: 'baz'});
+    new CloudSearch({ bat: 'baz' });
 
-    expect(csStub.args[0][0]).to.deep.equal({foo: 'bar', bat: 'baz'});
+    expect(csStub.args[0][0]).to.deep.equal({ foo: 'bar', bat: 'baz' });
   });
 
   it('should override global config with passed config', function() {
     configMock.foo = 'bar';
-    new CloudSearch({foo: 'baz'});
+    new CloudSearch({ foo: 'baz' });
 
-    expect(csStub.args[0][0]).to.deep.equal({foo: 'baz'});
+    expect(csStub.args[0][0]).to.deep.equal({ foo: 'baz' });
   });
 });
