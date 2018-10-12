@@ -9,13 +9,7 @@ chai.use(require('chai-sinon'));
 chai.use(require('chai-as-promised'));
 
 describe('SNS Utilities', function() {
-  let sns
-    , snsInstance
-    , snsMock
-    , result
-    , testConfig
-    , awsMock
-    , arn;
+  let sns, snsInstance, snsMock, result, testConfig, awsMock, arn;
 
   beforeEach(function() {
     result = 'result';
@@ -34,7 +28,9 @@ describe('SNS Utilities', function() {
         region: 'Winterfel'
       },
       SNS: class {
-        constructor() { return snsMock; }
+        constructor() {
+          return snsMock;
+        }
       }
     };
 
@@ -62,18 +58,22 @@ describe('SNS Utilities', function() {
     });
 
     it('should publish a message', function() {
-      return snsInstance.publish({ message, topicName: 'topic' })
-        .then(() => {
-          expect(snsMock.publish).to.have.been.calledWith({
-            Message: message,
-            Subject: undefined,
-            TopicArn: arn
-          });
+      return snsInstance.publish({ message, topicName: 'topic' }).then(() => {
+        expect(snsMock.publish).to.have.been.calledWith({
+          Message: message,
+          Subject: undefined,
+          TopicArn: arn
         });
+      });
     });
 
     it('should publish a message with attributes', function() {
-      return snsInstance.publish({ message, topicName: 'topic', messageAttributes: 'some attributes' })
+      return snsInstance
+        .publish({
+          message,
+          topicName: 'topic',
+          messageAttributes: 'some attributes'
+        })
         .then(() => {
           expect(snsMock.publish).to.have.been.calledWith({
             Message: message,
@@ -88,20 +88,20 @@ describe('SNS Utilities', function() {
       testConfig.defaultSubject = 'defaultSubject';
       snsInstance = sns(testConfig);
 
-      return snsInstance.publish({ message, topicName: 'topic' })
-        .then(() => {
-          expect(snsMock.publish).to.have.been.calledWith({
-            Message: message,
-            Subject: 'defaultSubject',
-            TopicArn: arn
-          });
+      return snsInstance.publish({ message, topicName: 'topic' }).then(() => {
+        expect(snsMock.publish).to.have.been.calledWith({
+          Message: message,
+          Subject: 'defaultSubject',
+          TopicArn: arn
         });
+      });
     });
 
     it('should set a subject if passed', function() {
       snsInstance = sns(testConfig);
 
-      return snsInstance.publish({ message, topicName: 'topic', subject: 'Arya' })
+      return snsInstance
+        .publish({ message, topicName: 'topic', subject: 'Arya' })
         .then(() => {
           expect(snsMock.publish).to.have.been.calledWith({
             Message: message,
@@ -115,7 +115,8 @@ describe('SNS Utilities', function() {
       delete testConfig.arnSuffix;
       snsInstance = sns(testConfig);
 
-      return snsInstance.publish({ message, topicName: 'topic', subject: 'Arya' })
+      return snsInstance
+        .publish({ message, topicName: 'topic', subject: 'Arya' })
         .then(() => {
           expect(snsMock.publish).to.have.been.calledWith({
             Message: message,
@@ -129,7 +130,8 @@ describe('SNS Utilities', function() {
       testConfig.arnPrefix = 'sneeze-'; // the proper way to pronounce SNS. this is canon.
       snsInstance = sns(testConfig);
 
-      return snsInstance.publish({ message, topicName: 'topic', subject: 'Arya' })
+      return snsInstance
+        .publish({ message, topicName: 'topic', subject: 'Arya' })
         .then(() => {
           expect(snsMock.publish).to.have.been.calledWith({
             Message: message,
@@ -142,7 +144,8 @@ describe('SNS Utilities', function() {
     it('should stringify non-string messages', function() {
       const message = { jon: 'snow' };
 
-      return snsInstance.publish({ message, topicName: 'topic', subject: 'Arya' })
+      return snsInstance
+        .publish({ message, topicName: 'topic', subject: 'Arya' })
         .then(() => {
           expect(snsMock.publish).to.have.been.calledWith({
             Message: JSON.stringify(message),
@@ -157,7 +160,13 @@ describe('SNS Utilities', function() {
       sinon.stub(JSON, 'stringify');
       JSON.stringify.throws(error);
 
-      return expect(snsInstance.publish({ message: {}, topicName: 'topic', subject: 'Arya' })).to.be.rejectedWith(error);
+      return expect(
+        snsInstance.publish({
+          message: {},
+          topicName: 'topic',
+          subject: 'Arya'
+        })
+      ).to.be.rejectedWith(error);
     });
 
     it('should reject if the push fails', function() {
@@ -165,7 +174,8 @@ describe('SNS Utilities', function() {
 
       snsMock.publish.yields(error);
 
-      return expect(snsInstance.publish({ message, topicName: 'topic' })).to.be.rejected;
+      return expect(snsInstance.publish({ message, topicName: 'topic' })).to.be
+        .rejected;
     });
   });
 });

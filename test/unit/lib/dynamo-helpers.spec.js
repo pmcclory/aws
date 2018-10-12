@@ -31,7 +31,9 @@ describe('Dynamo Helpers', function() {
 
   it('should prepare an update expression from an array of keys', function() {
     const keysList = Object.keys(testHash);
-    expect(helpers.prepareUpdateExpression(keysList)).to.equal('SET #plan = :plan, #status = :status');
+    expect(helpers.prepareUpdateExpression(keysList)).to.equal(
+      'SET #plan = :plan, #status = :status'
+    );
   });
 
   it('should prepare an update for dynamo', function() {
@@ -47,5 +49,4 @@ describe('Dynamo Helpers', function() {
       }
     });
   });
-
 });
