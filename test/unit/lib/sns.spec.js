@@ -67,6 +67,23 @@ describe('SNS Utilities', function() {
       });
     });
 
+    it('should publish a message with attributes', function() {
+      return snsInstance
+        .publish({
+          message,
+          topicName: 'topic',
+          messageAttributes: 'some attributes'
+        })
+        .then(() => {
+          expect(snsMock.publish).to.have.been.calledWith({
+            Message: message,
+            Subject: undefined,
+            TopicArn: arn,
+            MessageAttributes: 'some attributes'
+          });
+        });
+    });
+
     it('should use a default subject', function() {
       testConfig.defaultSubject = 'defaultSubject';
       snsInstance = sns(testConfig);
