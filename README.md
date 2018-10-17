@@ -1,3 +1,5 @@
+![Build Status](https://codebuild.us-west-2.amazonaws.com/badges?uuid=eyJlbmNyeXB0ZWREYXRhIjoicHM2ajJNMnpwUDRGNno0YlpRWDZTL0FzaG84aHpqLytmcW4vbUdVS3lOVUhCUy9SNTJ4dUtpZkl5WEZZV1NtMnMyQ2xZMUhhcDRBeDAzVlR5V3pGclRjPSIsIml2UGFyYW1ldGVyU3BlYyI6IlNHSkxoenRCVUcxaTdOaisiLCJtYXRlcmlhbFNldFNlcmlhbCI6MX0%3D&branch=master)
+
 # aws
 Thin wrappers around the aws-sdk libraries we use.
 
