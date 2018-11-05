@@ -31,5 +31,6 @@ module.exports = {
   SNS: require('./lib/sns'),
   SQS: require('./lib/sqs'),
   CloudSearch: require('./lib/cloudsearch'),
+  SSM: require('./lib/ssm'),
   SDK: AWS
 };
