@@ -7,13 +7,21 @@ const proxyquire = require('proxyquire').noCallThru();
 const clientConfig = require('lib/client-config');
 
 describe('AWS Constructor tests', function() {
-  let awsWrapper, dynamoStub, snsStub, sqsStub, csStub, sdkStub, proxyStub;
+  let awsWrapper
+    ,dynamoStub
+    ,snsStub
+    ,sqsStub
+    ,csStub
+    ,sdkStub
+    ,proxyStub
+    ,ssmStub;
 
   beforeEach(function() {
     proxyStub = sinon.stub().returns('my-proxy-server');
     dynamoStub = sinon.stub();
     snsStub = sinon.stub();
     sqsStub = sinon.stub();
+    ssmStub = sinon.stub();
     csStub = sinon.stub();
     sdkStub = {
       config: { update: sinon.stub() }
@@ -24,6 +32,7 @@ describe('AWS Constructor tests', function() {
       './lib/sns': snsStub,
       './lib/sqs': sqsStub,
       './lib/cloudsearch': csStub,
+      './lib/ssm': ssmStub,
       'aws-sdk': sdkStub,
       'proxy-agent': proxyStub
     });
@@ -35,6 +44,7 @@ describe('AWS Constructor tests', function() {
     expect(awsWrapper.SQS).to.equal(sqsStub);
     expect(awsWrapper.CloudSearch).to.equal(csStub);
     expect(awsWrapper.SDK).to.equal(sdkStub);
+    expect(awsWrapper.SSM).to.equal(ssmStub);
   });
 
   it('should initialize with proxy if passed in as config', function() {
