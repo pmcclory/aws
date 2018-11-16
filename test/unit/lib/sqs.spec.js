@@ -206,6 +206,31 @@ describe('SQS Utilities', function() {
       ).to.be.rejectedWith(error);
     });
 
+    it('should allow for setting message group ID & deduplication id', function() {
+      const payload = { pay: 'load' };
+      return sqsInstance
+        .extendedSend({
+          queueName: 'queue',
+          s3Bucket: 'test',
+          payload,
+          attrs: { foo: 'bar' },
+          messageGroupId: 'unittest',
+          messageDeduplicationId: '123'
+        })
+        .then((res) => {
+          expect(res).to.deep.equal({ res: result, extended: false });
+          expect(sqsMock.sendMessage.callCount).to.equal(1);
+          expect(sqsMock.sendMessage.args[0][0]).to.deep.equal({
+            MessageBody: compress(JSON.stringify(payload)).toString('base64'),
+            QueueUrl: queueUrl,
+            MessageAttributes: { foo: 'bar' },
+            MessageGroupId: 'unittest',
+            MessageDeduplicationId: '123'
+          });
+          expect(s3Mock.upload).to.not.have.been.called;
+        });
+    });
+
     it('should send sqs-only messages when payload size is <256kb', function() {
       const payload = { pay: 'load' };
       return sqsInstance
@@ -434,6 +459,23 @@ describe('SQS Utilities', function() {
           MaxNumberOfMessages: 10,
           QueueUrl: queueUrl,
           WaitTimeSeconds: 20,
+          VisibilityTimeout: 300, // default timeout
+          MessageAttributeNames: []
+        });
+      });
+    });
+
+    it('should allow for specifying long polling time', function() {
+      testConfig.longPollingWaitTime = 2;
+      sqsInstance = sqs(testConfig);
+
+      return sqsInstance.retrieve({ queueName: 'queue' }).then((res) => {
+        expect(res).to.equal('result');
+        expect(sqsMock.receiveMessage.callCount).to.equal(1);
+        expect(sqsMock.receiveMessage.args[0][0]).to.deep.equal({
+          MaxNumberOfMessages: 10,
+          QueueUrl: queueUrl,
+          WaitTimeSeconds: 2,
           VisibilityTimeout: 300, // default timeout
           MessageAttributeNames: []
         });
