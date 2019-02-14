@@ -5,6 +5,7 @@ const expect = chai.expect;
 const proxyquire = require('proxyquire').noCallThru();
 const sinon = require('sinon');
 
+const _ = require('lodash');
 const zlib = require('zlib');
 const compress = zlib.gzipSync;
 
@@ -221,11 +222,35 @@ describe('SQS Utilities', function() {
           expect(res).to.deep.equal({ res: result, extended: false });
           expect(sqsMock.sendMessage.callCount).to.equal(1);
           expect(sqsMock.sendMessage.args[0][0]).to.deep.equal({
-            MessageBody: compress(JSON.stringify(payload)).toString('base64'),
+            MessageBody: compress(JSON.stringify(payload), {
+              level: zlib.constants.Z_NO_COMPRESSION
+            }).toString('base64'),
             QueueUrl: queueUrl,
             MessageAttributes: { foo: 'bar' },
             MessageGroupId: 'unittest',
             MessageDeduplicationId: '123'
+          });
+          expect(s3Mock.upload).to.not.have.been.called;
+        });
+    });
+
+    it('should compress with default level when over 64KB', function() {
+      const payload = _.repeat('abcd', 16500); //repeat to ~66kb
+
+      return sqsInstance
+        .extendedSend({
+          queueName: 'queue',
+          s3Bucket: 'test',
+          payload,
+          attrs: { foo: 'bar' }
+        })
+        .then((res) => {
+          expect(res).to.deep.equal({ res: result, extended: false });
+          expect(sqsMock.sendMessage.callCount).to.equal(1);
+          expect(sqsMock.sendMessage.args[0][0]).to.deep.equal({
+            MessageBody: compress(payload).toString('base64'),
+            QueueUrl: queueUrl,
+            MessageAttributes: { foo: 'bar' }
           });
           expect(s3Mock.upload).to.not.have.been.called;
         });
@@ -244,7 +269,9 @@ describe('SQS Utilities', function() {
           expect(res).to.deep.equal({ res: result, extended: false });
           expect(sqsMock.sendMessage.callCount).to.equal(1);
           expect(sqsMock.sendMessage.args[0][0]).to.deep.equal({
-            MessageBody: compress(JSON.stringify(payload)).toString('base64'),
+            MessageBody: compress(JSON.stringify(payload), {
+              level: zlib.constants.Z_NO_COMPRESSION
+            }).toString('base64'),
             QueueUrl: queueUrl,
             MessageAttributes: { foo: 'bar' }
           });
@@ -265,7 +292,9 @@ describe('SQS Utilities', function() {
           expect(res).to.deep.equal({ res: result, extended: false });
           expect(sqsMock.sendMessage.callCount).to.equal(1);
           expect(sqsMock.sendMessage.args[0][0]).to.deep.equal({
-            MessageBody: compress(payload).toString('base64'),
+            MessageBody: compress(payload, {
+              level: zlib.constants.Z_NO_COMPRESSION
+            }).toString('base64'),
             QueueUrl: queueUrl,
             MessageAttributes: { foo: 'bar' }
           });
