@@ -596,4 +596,38 @@ describe('SQS Utilities', function() {
       });
     });
   });
+
+  describe('maybeRetrieveFromS3', function() {
+    it('should fetch from s3 when an extended message', function() {
+      s3Mock.getObjectAsync = sinon
+        .stub()
+        .resolves({ Body: compress(JSON.stringify({ test: true })) });
+
+      const message = {
+        body: 'should not be read',
+        attributes: {
+          EXTENDED_S3_BUCKET: 'test_bucket',
+          EXTENDED_S3_KEY: '/test/bucket/object'
+        }
+      };
+
+      return sqsInstance.maybeRetrieveFromS3(message).then(({ body }) => {
+        expect(body).to.deep.equal({ test: true });
+        expect(s3Mock.getObjectAsync).to.have.been.called;
+      });
+    });
+
+    it('should return decompressed from sqs when non-extended', function() {
+      s3Mock.getObjectAsync = sinon.stub().rejects();
+
+      const message = {
+        body: compress(JSON.stringify({ test: true }))
+      };
+
+      return sqsInstance.maybeRetrieveFromS3(message).then(({ body }) => {
+        expect(body).to.deep.equal({ test: true });
+        expect(s3Mock.getObjectAsync).not.to.have.been.called;
+      });
+    });
+  });
 });
