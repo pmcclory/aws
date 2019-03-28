@@ -605,9 +605,9 @@ describe('SQS Utilities', function() {
 
       const message = {
         body: 'should not be read',
-        attributes: {
-          EXTENDED_S3_BUCKET: 'test_bucket',
-          EXTENDED_S3_KEY: '/test/bucket/object'
+        messageAttributes: {
+          EXTENDED_S3_BUCKET: { stringValue: 'test_bucket' },
+          EXTENDED_S3_KEY: { stringValue: '/test/bucket/object' }
         }
       };
 
